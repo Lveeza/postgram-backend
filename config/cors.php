@@ -19,7 +19,10 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://postgram-frontend.vercel.app'],
+    'allowed_origins' => [
+        'https://postgram-frontend.vercel.app',
+        'https://postgram-laveeza.vercel.app',
+    ],
 
     'allowed_origins_patterns' => [],
 
