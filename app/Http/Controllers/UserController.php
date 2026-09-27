@@ -22,7 +22,8 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'bio' => 'nullable|string|max:500',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'name' => 'required|string|max:255'
         ]);
 
         if ($request->hasFile('avatar')) {
@@ -33,6 +34,10 @@ class UserController extends Controller
 
         if (array_key_exists('bio', $validated)) {
             $user->bio = $validated['bio'];
+        }
+
+        if (array_key_exists('name', $validated)) {
+            $user->name = $validated['name'];
         }
 
         $user->save();
