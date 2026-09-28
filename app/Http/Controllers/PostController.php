@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use App\Repositories\Contracts\PostRepositoryInterface;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -62,8 +63,13 @@ class PostController extends Controller
                 } else {
                     $fileKey = "media.$index.content";
                     if ($request->hasFile($fileKey)) {
-                        $content = $request->file($fileKey)->store('posts', 's3');
+                        $path = $request->file($fileKey)->store('posts', 's3');
+                        $content = Storage::disk('s3')->url($path);
                     }
+                }
+
+                if ($content === null) {
+                    continue;
                 }
 
                 $post->media()->create([
