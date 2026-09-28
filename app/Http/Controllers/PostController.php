@@ -64,7 +64,7 @@ class PostController extends Controller
                     $fileKey = "media.$index.content";
                     if ($request->hasFile($fileKey)) {
                         $path = $request->file($fileKey)->store('posts', 's3');
-                        $content = Storage::disk('s3')->url($path);
+                        $content = Storage::url($path);
                     }
                 }
 
