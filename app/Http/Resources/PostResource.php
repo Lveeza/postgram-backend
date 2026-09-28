@@ -25,8 +25,8 @@ class PostResource extends JsonResource
                 return $this->media->map(fn($item) => [
                     'type' => $item->type,
                     'content' => $item->type === 'text'
-                        ? $item->path
-                        : (str_starts_with($item->path, 'http') ? $item->path : asset('storage/' . $item->path)),
+                        ? $item->content
+                        : (str_starts_with($item->content, 'http') ? $item->content : asset('storage/' . $item->content)),
                     'order' => $item->order,
                 ]);
             }),
