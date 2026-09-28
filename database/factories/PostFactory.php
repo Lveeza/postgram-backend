@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -40,8 +41,7 @@ class PostFactory extends Factory
         return [
             'title' => $selected['title'],
             'body' => $selected['body'],
-            'image_path' => 'https://picsum.photos/640/480?random=' . fake()->unique()->numberBetween(1, 1000),
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => User::factory(),
         ];
     }
 }
