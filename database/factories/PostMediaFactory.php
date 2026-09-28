@@ -21,7 +21,7 @@ class PostMediaFactory extends Factory
         return [
             'post_id' => Post::factory(),
             'type' => 'image',
-            'path' => 'https://picsum.photos/seed/' . fake()->unique()->numberBetween(1, 1000000) . '/800/800',
+            'content' => 'https://picsum.photos/seed/' . fake()->unique()->numberBetween(1, 1000000) . '/800/800',
             'order' => 0,
         ];
     }
