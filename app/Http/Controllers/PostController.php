@@ -60,7 +60,10 @@ class PostController extends Controller
                 if ($type === 'text') {
                     $content = $item['content'];
                 } else {
-                    $content = $request->file("media.$index.content")->store('posts', 'public');
+                    $fileKey = "media.$index.content";
+                    if ($request->hasFile($fileKey)) {
+                        $content = $request->file($fileKey)->store('posts', 'supabase');
+                    }
                 }
 
                 $post->media()->create([
