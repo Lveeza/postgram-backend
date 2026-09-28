@@ -12,7 +12,7 @@ class PostMedia extends Model
     protected $fillable = [
         'post_id',
         'type',
-        'path',
+        'content',
         'order',
     ];
 

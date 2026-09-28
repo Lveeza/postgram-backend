@@ -65,7 +65,7 @@ class PostController extends Controller
 
                 $post->media()->create([
                     'type' => $type,
-                    'path' => $content,
+                    'content' => $content,
                     'order' => $index,
                 ]);
             }
