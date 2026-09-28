@@ -62,7 +62,7 @@ class PostController extends Controller
                 } else {
                     $fileKey = "media.$index.content";
                     if ($request->hasFile($fileKey)) {
-                        $content = $request->file($fileKey)->store('posts', 'supabase');
+                        $content = $request->file($fileKey)->store('posts', 's3');
                     }
                 }
 
