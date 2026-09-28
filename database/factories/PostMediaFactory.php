@@ -33,7 +33,7 @@ class PostMediaFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'type' => 'video',
-            'path' => 'https://www.w3schools.com/html/mov_bbb.mp4',
+            'content' => 'https://www.w3schools.com/html/mov_bbb.mp4',
         ]);
     }
 
@@ -52,7 +52,7 @@ class PostMediaFactory extends Factory
 
         return $this->state(fn(array $attributes) => [
             'type' => 'text',
-            'path' => fake()->randomElement($lines),
+            'content' => fake()->randomElement($lines),
         ]);
     }
 }
