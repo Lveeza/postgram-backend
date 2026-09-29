@@ -6,6 +6,7 @@ use App\Models\Like;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use App\Notifications\PostLiked;
 
 class LikeController extends Controller
 {
@@ -19,6 +20,9 @@ class LikeController extends Controller
             $liked = false;
         } else {
             $user->likes()->create(['post_id' => $post->id]);
+            if ($post->user_id !== $user->id) {
+                $post->user->notify(new PostLiked($user, $post));
+            }
             $liked = true;
         }
         Cache::tags(['posts'])->flush();

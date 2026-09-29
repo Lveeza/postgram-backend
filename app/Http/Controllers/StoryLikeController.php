@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Story;
 use Illuminate\Support\Facades\Cache;
+use App\Notifications\StoryLiked;
 
 class StoryLikeController extends Controller
 {
@@ -18,6 +19,9 @@ class StoryLikeController extends Controller
             $storyLiked = false;
         } else {
             $user->storyLikes()->create(['story_id' => $story->id]);
+            if ($story->user_id !== $user->id) {
+                $story->user->notify(new StoryLiked($user, $story));
+            }
             $storyLiked = true;
         }
         Cache::tags(['story'])->flush();

@@ -9,6 +9,7 @@ use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Events\CommentCreated;
 use App\Http\Resources\CommentResource;
+use App\Notifications\PostCommented;
 
 class CommentController extends Controller
 {
@@ -28,6 +29,9 @@ class CommentController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
+        if ($post->user_id !== $request->user()->id) {
+            $post->user->notify(new PostCommented($request->user(), $comment));
+        }
         CommentCreated::dispatch($comment);
 
         return response()->json([
