@@ -6,6 +6,7 @@ use App\Events\CommentCreated;
 use App\Mail\NewCommentNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class NotifyPostOwner implements ShouldQueue
 {
