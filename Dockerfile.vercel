@@ -1,7 +1,14 @@
 FROM dunglas/frankenphp:1-php8.4-bookworm AS base
 
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-    && install-php-extensions intl zip pdo_mysql
+    && install-php-extensions intl zip pdo_mysql \
+    && { \
+        echo 'upload_max_filesize=100M'; \
+        echo 'post_max_size=100M'; \
+        echo 'memory_limit=256M'; \
+        echo 'max_execution_time=120'; \
+        echo 'max_input_time=120'; \
+    } >> "$PHP_INI_DIR/php.ini"
 
 WORKDIR /app
 
