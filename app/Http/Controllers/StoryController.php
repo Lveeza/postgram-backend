@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use App\Http\Resources\StoryResource;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Storage;
 
 class StoryController extends Controller
 {
@@ -27,11 +28,12 @@ class StoryController extends Controller
             ]);
         } else {
             foreach ($request->file('content', []) as $file) {
-                $path = $file->store('stories', 'public');
+                $path = $file->store('stories', 's3');
+                $url = Storage::url($path);
 
                 $stories[] = $request->user()->stories()->create([
                     'type' => $request->type,
-                    'content' => $path,
+                    'content' => $url,
                     'background_color' => null,
                 ]);
             }
