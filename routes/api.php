@@ -10,6 +10,7 @@ use App\Http\Controllers\StoryController;
 use App\Http\Controllers\StoryLikeController;
 use App\Http\Controllers\StoryViewController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\NotificationController;
 
 // Public authentication routes
 Route::post('/register', [AuthController::class, 'register'])
@@ -51,4 +52,8 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::delete('stories/{story}', [StoryController::class, 'destroy']);
     Route::post('stories/{story}/likes', [StoryLikeController::class, 'toggle']);
     Route::post('/stories/{story}/views', [StoryViewController::class, 'store'])->middleware('auth:sanctum');
+
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
 });
