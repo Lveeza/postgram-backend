@@ -29,7 +29,7 @@ class UserController extends Controller
 
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('posts', 's3');
-            $user->profile_photo_path = $path;
+            $user->profile_photo_path = Storage::url($path);
         }
 
         if (array_key_exists('bio', $validated)) {
