@@ -1,86 +1,67 @@
-# Postagram
+Postagram — Backend
 
-An Instagram-style social posting application built with Laravel, featuring a full web app and a separate REST API with token-based authentication.
+An Instagram-style social media REST API built with Laravel, powering a separate React frontend. Token-based authentication, multi-media posts, 24-hour expiring stories, likes, follows, comments, and notifications.
 
-**Live demo:** [https://postgram-production-8430.up.railway.app/](https://postgram-production-8430.up.railway.app/)
-**API documentation:** [API.md](./API.md)
+Live API: https://postgram-backend-puce.vercel.app Live app (frontend): https://postgram-laveeza.vercel.app API documentation: API.md
 
----
+Features
+Authentication — Laravel Sanctum token-based auth, with scoped token abilities (e.g. posts:create, stories:delete) rather than one all-or-nothing token
+Posts — full CRUD with multi-media support: a single post can hold any combination of images, videos, and text slides, stored through an ordered post_media relation
+Comments — full CRUD, with ownership-gated edit and delete
+Likes — toggleable likes on posts, with counts computed through withCount
+Follows — follow/unfollow toggle, with follower/following counts and an is_following flag resolved without N+1 queries across paginated lists (scopeWithIsFollowedByAuth)
+Stories — 24-hour expiring stories (image, video, or text with a background color), with per-story likes and idempotent view tracking; expired stories are purged by a scheduled Artisan command
+Notifications — new-follower notifications through Laravel's database and broadcast channels; new-comment notifications by email through a queued listener
+Profile — bio and avatar upload, plus a public profile endpoint with a user's posts, follower/following counts, and follow status
+Search — search posts by title or body, built into the existing paginated posts endpoint
+Cursor Pagination — feed and profile listings use cursor pagination instead of offset-based, which suits infinite scroll
+File Storage — image and video uploads go to S3-compatible object storage (Supabase Storage), so uploaded media survives redeploys
+N+1 Query Prevention — eager loading and withCount throughout, verified with query logging during development
+Database Transactions — multi-step writes (such as a post plus its media rows) are wrapped in transactions
+API Resources — consistent JSON response shapes through PostResource, CommentResource, UserResource, and StoryResource
+Rate Limiting — applied to auth endpoints and the general API surface
+Automated Tests — Pest test suite covering auth, token abilities, policies, and rate limiting
+Tech Stack
+Layer Technology
+Backend PHP 8.4, Laravel
+Database MySQL (Aiven, managed)
+Auth Laravel Sanctum (token-based, scoped abilities)
+File Storage S3-compatible object storage (Supabase Storage)
+Queue Queued notifications and emails
+Email Resend (production), Mailtrap (local testing)
+Testing Pest
+Deployment Vercel (Docker container running FrankenPHP)
+Frontend React, Vite, Tailwind CSS (separate repo)
+Architecture Notes
 
-## Features
+This project was built step by step, from vanilla PHP fundamentals through to Laravel, with a focus on understanding why the framework is structured the way it is.
 
-- **Authentication & Authorization** — session-based auth for the web app, Sanctum token auth for the API, with Policy-based authorization enforced consistently across both
-- **Posts & Comments** — create, edit, delete, with image uploads and pagination
-- **Search & Filtering** — search posts by title or body
-- **REST API** — full CRUD for posts and comments, scoped token abilities, rate limiting
-- **Email Notifications** — post owners are emailed when someone comments, sent via a queued listener so it never blocks the request
-- **N+1 Query Optimization** — eager loading throughout, verified via query logging
-- **Database Transactions** — post creation/deletion wrapped in transactions to keep a denormalized `posts_count` counter in sync
-- **API Resources** — consistent JSON response shapes via `PostResource` / `CommentResource`
-- **Automated Tests** — Pest test suite covering web routes, API auth, token abilities, and rate limiting
-
----
-
-## Tech Stack
-
-| Layer      | Technology                                    |
-| ---------- | --------------------------------------------- |
-| Backend    | PHP 8.x, Laravel 11                           |
-| Database   | MySQL                                         |
-| Auth       | Laravel Sanctum (API), Session Auth (Web)     |
-| Frontend   | Blade, Tailwind CSS                           |
-| Queue      | Database driver                               |
-| Email      | Resend (production), Mailtrap (local testing) |
-| Testing    | Pest                                          |
-| Deployment | Railway (GitHub auto-deploy)                  |
-
----
-
-## Architecture Notes
-
-This project was built as a learning exercise progressing from vanilla PHP fundamentals through to Laravel, with an emphasis on understanding _why_ the framework is structured the way it is rather than treating it as a black box. Notably:
-
-- The **Repository pattern** used for post listing/search was first hand-built in plain PHP before being reimplemented in Laravel — the abstraction is the same, only the implementation changed.
-- **Authorization logic lives in Policies**, not scattered across controllers — both the web and API controllers call the same `PostPolicy`/`CommentPolicy`, so authorization rules never drift out of sync between the two surfaces.
-- **Side effects (email notifications) are decoupled from the request cycle** via Events, Listeners, and queued jobs — a comment being created doesn't wait on an email being sent.
-
----
-
-## Local Setup
-
-```bash
-git clone https://github.com/Lveeza/postgram.git
-cd postgram
+Authorization lives in Policies, not scattered across controllers, so rules can't drift apart between endpoints.
+Side effects are decoupled from the request cycle. A new comment doesn't wait on an email being sent, and a new follower's notification is queued instead of delivered inline.
+API Resources are the single source of truth for response shape. Every endpoint that returns a user, post, comment, or story reuses the same Resource class, so one fix (for example, avatar URL formatting) applies everywhere that data appears.
+Stories use computed expiry, not a stored expires*at column: visibility is calculated from created_at on every query (scopeActive()), and a scheduled command separately deletes expired rows so the table doesn't grow without limit.
+The app runs as a Docker container on Vercel (FrankenPHP), not on a traditional always-on server. This meant solving real constraints: no persistent local disk (hence S3-compatible storage), PHP upload limits, and environment-variable collisions with the platform's own reserved AWS*\* names.
+Local Setup
+bash
+git clone https://github.com/Lveeza/postgram-backend.git
+cd postgram-backend
 composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate
-php artisan storage:link
-```
 
-Set your `MAIL_*` and `DB_*` credentials in `.env`, then:
+Set your DB*\*, S3*_ (file storage), and MAIL\__ credentials in .env, then:
 
-```bash
+bash
 php artisan serve
-php artisan queue:work   # in a separate terminal, for queued email notifications
-```
-
----
-
-## Running Tests
-
-```bash
+php artisan queue:work # separate terminal, processes queued notifications and emails
+Running Tests
+bash
 ./vendor/bin/pest
-```
+API
 
----
+See API.md for full endpoint documentation, including authentication, request and response examples, token abilities, and rate limiting.
 
-## API
+License
 
-See [API.md](./API.md) for full endpoint documentation, including authentication, request/response examples, and rate limiting details.
-
----
-
-## License
-
-Open-sourced for portfolio/educational purposes.
+Open-sourced for portfolio and educational purposes.
